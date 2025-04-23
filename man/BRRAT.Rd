@@ -7,34 +7,57 @@
 BRRAT(Sim, Obs, Clim, ...)
 }
 \arguments{
-\item{Sim}{Annual time series of simulated values (typically streamflow volume)}
+\item{Sim}{Time series of simulated values (typically annual streamflow volume)}
 
-\item{Obs}{Annual time series of observed values}
+\item{Obs}{Time series of observed values}
 
-\item{Clim}{Annual time series of independent climate values}
+\item{Clim}{Time series of independent climate values}
 
 \item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains).}
 }
 \value{
-list with slopes for Sim (beta1), Sim2 if provided (beta2), and rstan model fit object for testing of convergence etc, lambda exponent used for BC transformation
+a list with members:
+\describe{
+\item{beta}{samples of slope values from the posterior distribution}
+\item{fit}{rstan model  object for testing of convergence etc}
+\item{lambda}{value of exponent used for BC transformation}
+}
 }
 \description{
-Bayesian Regression Robustness Assessment Test
+Function to apply the BRRAT. The input \code{Sim} and \code{Obs} time series are first
+transformed to near normal distributions using a boxcox transformation, with
+the lambda exponent fit to the \code{obs} data.
+}
+\details{
+A linear regression is fit between the error between the transformed \code{Sim}
+and \code{Obs} data and the corresponding \code{Clim} data, to test for a dependent
+relationship between the error and climate, indicating a model that is not
+robust to the input climate data. Stan is used to fit the linear regression,
+and hence a distribution of slope values are returned.
 }
 \examples{
-samples <- 30
-Clim <- sort(pmax(0,rnorm(samples,600,100))) #generate some annual rainfall totals
-Obs <- pmax(0,(Clim - 150) - 450 * tanh((Clim - 150)/450)) #calculate annual runoff from tanh curve
-Sim1 <- Obs*seq(1,0.7,length.out=length(Obs))*rnorm(samples,1,0.05) #non-robust model, underestimate the wetter years
-Sim2 <- Obs*rnorm(samples,1,0.05) #robust model, only random error
-slopes1 <- BRRAT(Sim1,Obs,Clim)
-slopes2 <- BRRAT(Sim2,Obs,Clim)
 
+#generate 2 models of annual streamflow
+samples <- 50
+#generate some annual rainfall totals
+Clim <- sort(pmax(0,rnorm(samples,600,100)))
+#calculate annual runoff from tanh curve
+observed <- pmax(0,(Clim - 150) - 450 * tanh((Clim - 150)/450))
+#non-robust model, underestimate the wetter years
+Sim1 <- observed*seq(1,0.7,length.out=length(observed))*rnorm(samples,1,0.05)
+#robust model, only random error
+Sim2 <- observed*rnorm(samples,1,0.05)
+
+#apply BRRAT test to both
+slopes1 <- BRRAT(Sim1,observed,Clim)
+slopes2 <- BRRAT(Sim2,observed,Clim)
+
+#compare slopes of regression between box-cox transformed errors and climate
 dat <- data.frame(beta = c(slopes1$beta, slopes2$beta),
-                  id = c(rep("Sim1",length(slopes1$beta)),
+                  model = c(rep("Sim1",length(slopes1$beta)),
                   rep("Sim2",length(slopes2$beta))))
-ggplot2::ggplot(dat)+geom_density(aes(beta,fill=id))
-
-
+ggplot2::ggplot(dat)+
+ggplot2::geom_density(ggplot2::aes(beta,fill=model), alpha=0.5)+
+ggplot2::geom_vline(xintercept=0, linetype="dashed")
 
 }

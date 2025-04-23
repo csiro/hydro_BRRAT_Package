@@ -1,11 +1,14 @@
 Package: BRRAT
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Bayesian Regression Robustness Assessment Test
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Matt", "Gibbs", email = "matt.gibbs@csiro.au",
+    role = c("aut", "cre"))
+URL: https://github.com/matt-s-gibbs/SWTools
+Description: Tests for a linear relationship between boxcox transformed errors
+    and an input. Typically this is streamflow at an annual time scale, and a rainfall
+    input. The approach is outlined in Gibbs et al. (2025)...
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -17,7 +20,9 @@ Imports:
     Rcpp (>= 0.12.0),
     RcppParallel (>= 5.0.1),
     rstan (>= 2.18.1),
-    rstantools (>= 2.4.0)
+    rstantools (>= 2.4.0),
+    MASS,
+    ggplot2
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
