@@ -23,7 +23,7 @@
 #' @references
 #' Stan Development Team (NA). RStan: the R interface to Stan. R package version 2.32.6. https://mc-stan.org
 #'
-#' Gibbs et al (2025)
+#' Gibbs et al. (2025)
 #'
 "_PACKAGE"
 NULL

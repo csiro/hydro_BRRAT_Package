@@ -27,12 +27,18 @@ namespace model_lm_namespace {
 using stan::model::model_base_crtp;
 using namespace stan::math;
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 10> locations_array__ =
+static constexpr std::array<const char*, 16> locations_array__ =
   {" (found before start of program)",
-  " (in 'string', line 8, column 2 to column 17)",
+  " (in 'string', line 8, column 2 to column 13)",
   " (in 'string', line 9, column 2 to column 12)",
   " (in 'string', line 10, column 2 to column 22)",
-  " (in 'string', line 14, column 2 to column 42)",
+  " (in 'string', line 13, column 2 to column 23)",
+  " (in 'string', line 14, column 2 to column 23)",
+  " (in 'string', line 15, column 2 to column 27)",
+  " (in 'string', line 17, column 4 to column 36)",
+  " (in 'string', line 18, column 4 to column 31)",
+  " (in 'string', line 16, column 17 to line 19, column 3)",
+  " (in 'string', line 16, column 2 to line 19, column 3)",
   " (in 'string', line 3, column 2 to column 17)",
   " (in 'string', line 4, column 9 to column 10)",
   " (in 'string', line 4, column 2 to column 14)",
@@ -65,17 +71,17 @@ public:
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      current_statement__ = 5;
+      current_statement__ = 11;
       context__.validate_dims("data initialization", "N", "int",
         std::vector<size_t>{});
       N = std::numeric_limits<int>::min();
-      current_statement__ = 5;
+      current_statement__ = 11;
       N = context__.vals_i("N")[(1 - 1)];
-      current_statement__ = 5;
+      current_statement__ = 11;
       stan::math::check_greater_or_equal(function__, "N", N, 1);
-      current_statement__ = 6;
+      current_statement__ = 12;
       stan::math::validate_non_negative_index("x", "N", N);
-      current_statement__ = 7;
+      current_statement__ = 13;
       context__.validate_dims("data initialization", "x", "double",
         std::vector<size_t>{static_cast<size_t>(N)});
       x_data__ = Eigen::Matrix<double,-1,1>::Constant(N,
@@ -83,22 +89,22 @@ public:
       new (&x) Eigen::Map<Eigen::Matrix<double,-1,1>>(x_data__.data(), N);
       {
         std::vector<local_scalar_t__> x_flat__;
-        current_statement__ = 7;
+        current_statement__ = 13;
         x_flat__ = context__.vals_r("x");
-        current_statement__ = 7;
+        current_statement__ = 13;
         pos__ = 1;
-        current_statement__ = 7;
+        current_statement__ = 13;
         for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-          current_statement__ = 7;
+          current_statement__ = 13;
           stan::model::assign(x, x_flat__[(pos__ - 1)],
             "assigning variable x", stan::model::index_uni(sym1__));
-          current_statement__ = 7;
+          current_statement__ = 13;
           pos__ = (pos__ + 1);
         }
       }
-      current_statement__ = 8;
+      current_statement__ = 14;
       stan::math::validate_non_negative_index("y", "N", N);
-      current_statement__ = 9;
+      current_statement__ = 15;
       context__.validate_dims("data initialization", "y", "double",
         std::vector<size_t>{static_cast<size_t>(N)});
       y_data__ = Eigen::Matrix<double,-1,1>::Constant(N,
@@ -106,16 +112,16 @@ public:
       new (&y) Eigen::Map<Eigen::Matrix<double,-1,1>>(y_data__.data(), N);
       {
         std::vector<local_scalar_t__> y_flat__;
-        current_statement__ = 9;
+        current_statement__ = 15;
         y_flat__ = context__.vals_r("y");
-        current_statement__ = 9;
+        current_statement__ = 15;
         pos__ = 1;
-        current_statement__ = 9;
+        current_statement__ = 15;
         for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-          current_statement__ = 9;
+          current_statement__ = 15;
           stan::model::assign(y, y_flat__[(pos__ - 1)],
             "assigning variable y", stan::model::index_uni(sym1__));
-          current_statement__ = 9;
+          current_statement__ = 15;
           pos__ = (pos__ + 1);
         }
       }
@@ -150,9 +156,9 @@ public:
     // suppress unused var warning
     (void) function__;
     try {
-      local_scalar_t__ intercept = DUMMY_VAR__;
+      local_scalar_t__ alpha = DUMMY_VAR__;
       current_statement__ = 1;
-      intercept = in__.template read<local_scalar_t__>();
+      alpha = in__.template read<local_scalar_t__>();
       local_scalar_t__ beta = DUMMY_VAR__;
       current_statement__ = 2;
       beta = in__.template read<local_scalar_t__>();
@@ -162,9 +168,22 @@ public:
                 jacobian__>(0, lp__);
       {
         current_statement__ = 4;
-        lp_accum__.add(stan::math::normal_lpdf<propto__>(y,
-                         stan::math::add(intercept,
-                           stan::math::multiply(beta, x)), sigma));
+        lp_accum__.add(stan::math::normal_lpdf<propto__>(alpha, 0, 5));
+        current_statement__ = 5;
+        lp_accum__.add(stan::math::normal_lpdf<propto__>(beta, 0, 2));
+        current_statement__ = 6;
+        lp_accum__.add(stan::math::exponential_lpdf<propto__>(sigma, 0.1));
+        current_statement__ = 10;
+        for (int n = 1; n <= N; ++n) {
+          local_scalar_t__ mu_n = DUMMY_VAR__;
+          current_statement__ = 7;
+          mu_n = (alpha + (beta *
+            stan::model::rvalue(x, "x", stan::model::index_uni(n))));
+          current_statement__ = 8;
+          lp_accum__.add(stan::math::normal_lpdf<propto__>(
+                           stan::model::rvalue(y, "y",
+                             stan::model::index_uni(n)), mu_n, sigma));
+        }
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -203,9 +222,9 @@ public:
     // suppress unused var warning
     (void) function__;
     try {
-      double intercept = std::numeric_limits<double>::quiet_NaN();
+      double alpha = std::numeric_limits<double>::quiet_NaN();
       current_statement__ = 1;
-      intercept = in__.template read<local_scalar_t__>();
+      alpha = in__.template read<local_scalar_t__>();
       double beta = std::numeric_limits<double>::quiet_NaN();
       current_statement__ = 2;
       beta = in__.template read<local_scalar_t__>();
@@ -213,7 +232,7 @@ public:
       current_statement__ = 3;
       sigma = in__.template read_constrain_lb<local_scalar_t__,
                 jacobian__>(0, lp__);
-      out__.write(intercept);
+      out__.write(alpha);
       out__.write(beta);
       out__.write(sigma);
       if (stan::math::logical_negation(
@@ -244,10 +263,10 @@ public:
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      local_scalar_t__ intercept = DUMMY_VAR__;
+      local_scalar_t__ alpha = DUMMY_VAR__;
       current_statement__ = 1;
-      intercept = in__.read<local_scalar_t__>();
-      out__.write(intercept);
+      alpha = in__.read<local_scalar_t__>();
+      out__.write(alpha);
       local_scalar_t__ beta = DUMMY_VAR__;
       current_statement__ = 2;
       beta = in__.read<local_scalar_t__>();
@@ -272,8 +291,8 @@ public:
     (void) DUMMY_VAR__;
     try {
       current_statement__ = 1;
-      context__.validate_dims("parameter initialization", "intercept",
-        "double", std::vector<size_t>{});
+      context__.validate_dims("parameter initialization", "alpha", "double",
+        std::vector<size_t>{});
       current_statement__ = 2;
       context__.validate_dims("parameter initialization", "beta", "double",
         std::vector<size_t>{});
@@ -282,10 +301,10 @@ public:
         std::vector<size_t>{});
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      local_scalar_t__ intercept = DUMMY_VAR__;
+      local_scalar_t__ alpha = DUMMY_VAR__;
       current_statement__ = 1;
-      intercept = context__.vals_r("intercept")[(1 - 1)];
-      out__.write(intercept);
+      alpha = context__.vals_r("alpha")[(1 - 1)];
+      out__.write(alpha);
       local_scalar_t__ beta = DUMMY_VAR__;
       current_statement__ = 2;
       beta = context__.vals_r("beta")[(1 - 1)];
@@ -302,7 +321,7 @@ public:
   get_param_names(std::vector<std::string>& names__, const bool
                   emit_transformed_parameters__ = true, const bool
                   emit_generated_quantities__ = true) const {
-    names__ = std::vector<std::string>{"intercept", "beta", "sigma"};
+    names__ = std::vector<std::string>{"alpha", "beta", "sigma"};
     if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {}
   }
@@ -319,7 +338,7 @@ public:
   constrained_param_names(std::vector<std::string>& param_names__, bool
                           emit_transformed_parameters__ = true, bool
                           emit_generated_quantities__ = true) const final {
-    param_names__.emplace_back(std::string() + "intercept");
+    param_names__.emplace_back(std::string() + "alpha");
     param_names__.emplace_back(std::string() + "beta");
     param_names__.emplace_back(std::string() + "sigma");
     if (emit_transformed_parameters__) {}
@@ -329,17 +348,17 @@ public:
   unconstrained_param_names(std::vector<std::string>& param_names__, bool
                             emit_transformed_parameters__ = true, bool
                             emit_generated_quantities__ = true) const final {
-    param_names__.emplace_back(std::string() + "intercept");
+    param_names__.emplace_back(std::string() + "alpha");
     param_names__.emplace_back(std::string() + "beta");
     param_names__.emplace_back(std::string() + "sigma");
     if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {}
   }
   inline std::string get_constrained_sizedtypes() const {
-    return std::string("[{\"name\":\"intercept\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
+    return std::string("[{\"name\":\"alpha\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
   }
   inline std::string get_unconstrained_sizedtypes() const {
-    return std::string("[{\"name\":\"intercept\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
+    return std::string("[{\"name\":\"alpha\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
   }
   // Begin method overload boilerplate
   template <typename RNG> inline void

@@ -5,9 +5,10 @@ Authors@R:
     person("Matt", "Gibbs", email = "matt.gibbs@csiro.au",
     role = c("aut", "cre"))
 URL: https://github.com/matt-s-gibbs/SWTools
-Description: Tests for a linear relationship between boxcox transformed errors
-    and an input. Typically this is streamflow at an annual time scale, and a rainfall
-    input. The approach is outlined in Gibbs et al. (2025)...
+Description: Tests for a linear relationship log ratio errors between an observed and simulated series
+    and an independent variable. Typically this the error in modelled streamflow at an annual time scale, and a rainfall
+    input. The approach allows for multiple sites as random factors and for multiple replicates of the simulated values.
+    The approach is outlined in Gibbs et al. (2025).
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -22,7 +23,8 @@ Imports:
     rstan (>= 2.18.1),
     rstantools (>= 2.4.0),
     MASS,
-    ggplot2
+    ggplot2,
+    dplyr
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

@@ -4,16 +4,14 @@
 \alias{BRRAT}
 \title{Bayesian Regression Robustness Assessment Test}
 \usage{
-BRRAT(Sim, Obs, Clim, ...)
+BRRAT(Sim, Obs, ...)
 }
 \arguments{
 \item{Sim}{Time series of simulated values (typically annual streamflow volume)}
 
 \item{Obs}{Time series of observed values}
 
-\item{Clim}{Time series of independent climate values}
-
-\item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains).}
+\item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains, cores).}
 }
 \value{
 a list with members:
@@ -37,27 +35,36 @@ and hence a distribution of slope values are returned.
 }
 \examples{
 
+\dontrun{
 #generate 2 models of annual streamflow
 samples <- 50
 #generate some annual rainfall totals
 Clim <- sort(pmax(0,rnorm(samples,600,100)))
 #calculate annual runoff from tanh curve
 observed <- pmax(0,(Clim - 150) - 450 * tanh((Clim - 150)/450))
+Obs <- data.frame(P=Clim,Q=observed,year=1:length(Clim))
+
 #non-robust model, underestimate the wetter years
 Sim1 <- observed*seq(1,0.7,length.out=length(observed))*rnorm(samples,1,0.05)
+Sim1 <- data.frame(Q=Sim1,year=1:length(Clim))
 #robust model, only random error
 Sim2 <- observed*rnorm(samples,1,0.05)
+Sim2 <- data.frame(Q=Sim2,year=1:length(Clim))
 
-#apply BRRAT test to both
-slopes1 <- BRRAT(Sim1,observed,Clim)
-slopes2 <- BRRAT(Sim2,observed,Clim)
+#apply BRRAT test to both, reduce chains and iters to speed up example.
+fit1 <- BRRAT(Sim1,Obs,chains=1,iter=500)
+fit2 <- BRRAT(Sim2,Obs,chains=1,iter=500)
 
-#compare slopes of regression between box-cox transformed errors and climate
-dat <- data.frame(beta = c(slopes1$beta, slopes2$beta),
-                  model = c(rep("Sim1",length(slopes1$beta)),
-                  rep("Sim2",length(slopes2$beta))))
-ggplot2::ggplot(dat)+
-ggplot2::geom_density(ggplot2::aes(beta,fill=model), alpha=0.5)+
-ggplot2::geom_vline(xintercept=0, linetype="dashed")
+dat <- data.frame(b = c(fit1$beta_draws,fit2$beta_draws),
+id = c(rep("fit1",length(fit1$beta_draws)),rep("fit2",length(fit2$beta_draws)))
+ggplot(dat)+geom_density(aes(b,fill=id)) #fit2 is centered on 0, fit1 has a negative slope
+#can also be viewed using the plotting function
+plot_BRRAT_population(fit1)
+plot_BRRAT_population(fit2)
+
+#Summarise statistics of the mean can be viewed using
+summarise_BRRAT(fit1)
+summarise_BRRAT(fit2)
+}
 
 }
