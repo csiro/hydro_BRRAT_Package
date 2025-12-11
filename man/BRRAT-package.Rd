@@ -20,7 +20,8 @@ Gibbs et al. (2026) in review
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/matt-s-gibbs/SWTools}
+  \item \url{https://github.com/MattGibbsCSIRO/BRRAT}
+  \item Report bugs at \url{https://github.com/MattGibbsCSIRO/BRRAT/issues}
 }
 
 }

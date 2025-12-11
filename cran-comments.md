@@ -12,7 +12,10 @@ Status: OK
 
 ## Win-builder devel and release
 
-Status: OK
+Status: 1 NOTE
+
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Matt Gibbs <matt.gibbs@csiro.au>'
 
 ## Local Windows 11
 
