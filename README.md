@@ -1,7 +1,4 @@
-# BRRAT https://img.shields.io/badge/R-package-blue
-
 ![R-CMD-check](https://github.com/MattGibbsCSIRO/BRRAT/actions/workflows/r-cmd-check.yml)
-
 
 # Introduction 
 TODO: Will be expanded if published. 

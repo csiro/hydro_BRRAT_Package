@@ -9,20 +9,19 @@ on:
 
 jobs:
   R-CMD-check:
-     strategy:
+    strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        # You can also matrix R versions if you want (e.g., release/oldrel)
+        # r: [ 'release' ]
     runs-on: ${{ matrix.os }}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      # Keep Stan deterministic & fast in CI
       R_KEEP_PKG_SOURCE: yes
       RSTAN_NUM_THREADS: 1
       _R_CHECK_CRAN_INCOMING_: false
-      # Your tests already lower iter/warmup/chains via helper.R options
-      # If you need to pass extra env flags to tests, add them here.
 
     steps:
       - name: Checkout
@@ -36,7 +35,7 @@ jobs:
       - name: Set up Pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
-      # ---- System toolchain (needed for rstan/Rcpp on Linux) ----
+      # ---- System toolchain for Stan/Rcpp (Linux/macOS) ----
       - name: Install system deps (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -55,44 +54,32 @@ jobs:
           brew update
           brew install gfortran || true
 
-      # Windows toolchain is managed by rtools through setup-r on GHA runners
+      # Windows toolchain is handled by setup-r (Rtools)
 
-      # ---- Cache R package binaries ----
-      - name: Cache R packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/R
-          key: ${{ runner.os }}-r-${{ hashFiles('**/DESCRIPTION') }}
-          restore-keys: ${{ runner.os }}-r-
-
-      # ---- Install package dependencies ----
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
-            any::devtools
+            any::rcmdcheck
             any::testthat
             any::rstan
             any::StanHeaders
             any::RcppParallel
-            any::ggplot2
             any::withr
           needs: check
 
-      # ---- Run R CMD check (includes your tests) ----
       - name: Check
         uses: r-lib/actions/check-r-package@v2
         with:
           args: '---no-manual --timings'
-          upload-snapshots: false  # set true if you add vdiffr snapshot tests
+          upload-snapshots: false
 
-      # ---- Collect artifacts on failure ----
-      - name: Upload check artifacts
+      - name: Upload check artifacts (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: check-results
+          name: check-results-${{ runner.os }}
           path: |
-            check/*.Rcheck
+            **/*.Rcheck
             **/tests/testthat.Rout*
             **/tests/testthat/*.Rout*
