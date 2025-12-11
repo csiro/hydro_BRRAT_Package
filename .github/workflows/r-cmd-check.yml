@@ -1,0 +1,98 @@
+
+name: R-CMD-check
+
+on:
+  push:
+    branches: [ main, develop, feature/** ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  R-CMD-check:
+     strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Keep Stan deterministic & fast in CI
+      R_KEEP_PKG_SOURCE: yes
+      RSTAN_NUM_THREADS: 1
+      _R_CHECK_CRAN_INCOMING_: false
+      # Your tests already lower iter/warmup/chains via helper.R options
+      # If you need to pass extra env flags to tests, add them here.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Set up Pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
+      # ---- System toolchain (needed for rstan/Rcpp on Linux) ----
+      - name: Install system deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libcurl4-openssl-dev \
+            libssl-dev \
+            libxml2-dev \
+            build-essential \
+            gfortran \
+            libatlas-base-dev
+
+      - name: Install system deps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install gfortran || true
+
+      # Windows toolchain is managed by rtools through setup-r on GHA runners
+
+      # ---- Cache R package binaries ----
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/R
+          key: ${{ runner.os }}-r-${{ hashFiles('**/DESCRIPTION') }}
+          restore-keys: ${{ runner.os }}-r-
+
+      # ---- Install package dependencies ----
+      - name: Install dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::testthat
+            any::rstan
+            any::StanHeaders
+            any::RcppParallel
+            any::ggplot2
+            any::withr
+          needs: check
+
+      # ---- Run R CMD check (includes your tests) ----
+      - name: Check
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          args: '---no-manual --timings'
+          upload-snapshots: false  # set true if you add vdiffr snapshot tests
+
+      # ---- Collect artifacts on failure ----
+      - name: Upload check artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-results
+          path: |
+            check/*.Rcheck
+            **/tests/testthat.Rout*
+            **/tests/testthat/*.Rout*

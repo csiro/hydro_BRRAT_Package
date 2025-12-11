@@ -1,24 +1,40 @@
 #' Bayesian Regression Robustness Assessment Test
 #'
-#' Function to apply the BRRAT. The input `Sim` and `Obs` time series are first
-#' transformed to near normal distributions using a boxcox transformation, with
-#' the lambda exponent fit to the `obs` data.
-#'
-#' A linear regression is fit between the error between the transformed `Sim`
+#' Function to apply the BRRAT. A linear regression is fit between the error between the transformed `Sim`
 #' and `Obs` data and the corresponding `Clim` data, to test for a dependent
 #' relationship between the error and climate, indicating a model that is not
 #' robust to the input climate data. Stan is used to fit the linear regression,
 #' and hence a distribution of slope values are returned.
 #'
-#' @param Sim Time series of simulated values (typically annual streamflow volume)
-#' @param Obs Time series of observed values
+#' Multiple catchments are supported through random factors in the hierarchical
+#' linear regression model,indicated by different values in an `ID` column.
+#'
+#' Multiple replicates of the Simulated time series are supported, matched based
+#' on the `year` column.
+#'
+#' @param Sim Data frame type containing time series of simulated values (typically annual streamflow).
+#' @param Obs Data frame type containing time series of observed values (typically annual streamflow and rainfall).
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains, cores).
+#'
+#' `Sim` requires column names of `year` and `Q`.
+#' `year` is used to match the simulated an observed values, and
+#' `Q` are the simulated values to test, typically streamflow volume/depth
+#'#'
+#' `Obs` requires column names of `year`, `P` and `Q`.
+#' `year` is the year of observation, matched to `year` in `Sim` to calculate errors
+#' `Q` is the observed values to compare to the `Q` column from `Sim`, using a log ratio
+#' `P` is the independent climate variable, to test if there is a relationship in the errors
+#'
+#' An optional `ID` column can be included to indicate multiple sites to be used
+#' as random factors in the test. If an `ID` column is used, it is required in both `Sim` and `Obs`.
 #'
 #' @return a list with members:
 #' \describe{
-#' \item{beta}{samples of slope values from the posterior distribution}
 #' \item{fit}{rstan model  object for testing of convergence etc}
-#' \item{lambda}{value of exponent used for BC transformation}
+#' \item{data}{list of data in stan format used to fit the model, after transformation}
+#' \item{id_levels}{order of random factors if used}
+#' \item{beta_draws}{samples of slope values from the posterior distribution}
+#' \item{statistics}{statistics indicating the probability that the slope is: greater than 0 `prob_beta_gt0`, less than 0 `prob_beta_lt0`, and non-zero `p_nonzero`}
 #'}
 #'
 #' @export
@@ -37,6 +53,7 @@
 #' #non-robust model, underestimate the wetter years
 #' Sim1 <- observed*seq(1,0.7,length.out=length(observed))*rnorm(samples,1,0.05)
 #' Sim1 <- data.frame(Q=Sim1,year=1:length(Clim))
+#'
 #' #robust model, only random error
 #' Sim2 <- observed*rnorm(samples,1,0.05)
 #' Sim2 <- data.frame(Q=Sim2,year=1:length(Clim))
@@ -64,7 +81,7 @@ BRRAT<-function(Sim, Obs, ...){
   if(!("data.frame" %in% class(Sim))){
     stop("Sim must be of type that inherits data.frame (data.frame, tibble, etc)")
   }
-  #check inputs are OK
+
   if(!("data.frame" %in% class(Obs))){
     stop("Obs must be of type that inherits data.frame (data.frame, tibble, etc)")
   }
@@ -73,6 +90,12 @@ BRRAT<-function(Sim, Obs, ...){
   if(!all(expected_cols %in% names(Obs))){
     stop(paste("Obs input requires columns of:\nyear (index of observations to match to Sim)\nP (independent climate variable)\nQ (observed flow response to evaluate against Sim"))
   }
+
+  if(any(is.na(Sim)) | any(is.na(Obs))) stop("remove NAs")
+
+  if(min(nrow(Sim), nrow(Obs))<3) stop("data frame too small, not enough rows")
+
+  if(min(Obs$Q)<=0) stop("Obs$Q must be positive")
 
   if(!("ID" %in% names(Obs))){
     warning("No ID column in Obs. Assuming 1 site, adding dummy ID column")
@@ -84,11 +107,6 @@ BRRAT<-function(Sim, Obs, ...){
   if(!all(expected_cols %in% names(Sim))){
     stop(paste("Sim input requires columns of:\nyear (index of observations to match to Obs)\nQ (Simulated flow response to evaluate against Obs)"))
   }
-
-
-  if(any(is.na(Sim)) | any(is.na(Obs))) stop("remove NAs")
-
-  if(min(Obs$Q)<=0) stop("Obs$Q must be positive")
 
   #Standardise Rain
   meanP <- Obs |> dplyr::group_by(.data$ID) |> dplyr::summarise(Pm = mean(.data$P),
@@ -147,51 +165,3 @@ BRRAT<-function(Sim, Obs, ...){
   return(out)
 }
 
-# #compare slopes of regression between box-cox transformed errors and climate
-# dat <- data.frame(beta = c(slopes1$beta, slopes2$beta),
-#                   model = c(rep("Sim1",length(slopes1$beta)),
-#                   rep("Sim2",length(slopes2$beta))))
-# ggplot2::ggplot(dat)+
-# ggplot2::geom_density(ggplot2::aes(beta,fill=model), alpha=0.5)+
-# ggplot2::geom_vline(xintercept=0, linetype="dashed")
-
-#
-#
-#
-#
-#
-#
-#   #find lambda for box-cox transformation
-#   lambda <- 1
-#   dframe <- data.frame(x = Obs)
-#   lm_m <- stats::lm(x~1, data=dframe)
-#   out <- MASS::boxcox(lm_m, data=dframe, plotit=FALSE)
-#   range <- range(out$x[out$y > max(out$y)-stats::qchisq(0.95,1)/2])
-#
-#   #if 1 is outside the 95% confidence interval then transform.
-#   #Assumes already near normal if 1 is in the range
-#   if(min(range)>1 | max(range<1)){
-#
-#     lambda <- out$x[which.max(out$y)]
-#     Obs <- (Obs^lambda - 1) / lambda
-#     Sim <- (Sim^lambda - 1) / lambda
-#   }
-#
-#   Qerr <- Sim/Obs - 1
-#   Clim_Index <- Clim/mean(Clim) - 1
-#
-#   stan_data <- list(
-#       N = length(Obs),
-#       x = Clim_Index,
-#       y = Qerr
-#     )
-#
-#   fit <- rstan::sampling(stanmodels$lm, data = stan_data, ...)
-#   posterior_samples <- rstan::extract(fit)
-#
-#   return_list <- list(beta = posterior_samples$beta,
-#                      fit = fit,
-#                      lambda = lambda)
-#
-#   return(return_list)
-# }

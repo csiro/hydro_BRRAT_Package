@@ -1,5 +1,5 @@
 
-#' Plot population-level regression Qerr ~ P with uncertainty band
+#' Plot population-level regression Qe ~ P with uncertainty band
 #'
 #' @title Population-level line and credible band
 #' @description

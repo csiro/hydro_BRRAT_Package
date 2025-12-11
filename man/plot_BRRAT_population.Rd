@@ -23,7 +23,7 @@ used during fitting. The plot overlays a (potentially downsampled) scatter of th
 original observations for context.
 }
 \details{
-Plot population-level regression Qerr ~ P with uncertainty band
+Plot population-level regression Qe ~ P with uncertainty band
 
 The function extracts posterior draws of \code{alpha} and \code{beta} from the Stan fit and
 evaluates \eqn{\mu(x) = \alpha + \beta x} along a grid of x values on the original

@@ -1,20 +1,24 @@
+# BRRAT https://img.shields.io/badge/R-package-blue
+
+![R-CMD-check](https://github.com/MattGibbsCSIRO/BRRAT/actions/workflows/r-cmd-check.yml)
+
+
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+TODO: Will be expanded if published. 
+
+Inspired by Nicolle et al. (2021)]( https://hess.copernicus.org/articles/25/5013/2021/)
+
+Expanded to estimate and compare slopes of relationship between model errors and input climate, 
+using a hierarchical linear regression approach if multiple catchments are considered simultaneously.
+
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Package will be submitted to CRAN if published. Once on CRAN, install with
+install.packages("BRRAT")
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+To install from github source, the easiest approach is:
+devtools::install_github("MattGibbsCSIRO/BRRAT")
 
 # Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Feel free to add pull requests, raise issues here on github or email.
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)

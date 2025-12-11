@@ -7,31 +7,47 @@
 BRRAT(Sim, Obs, ...)
 }
 \arguments{
-\item{Sim}{Time series of simulated values (typically annual streamflow volume)}
+\item{Sim}{Data frame type containing time series of simulated values (typically annual streamflow).}
 
-\item{Obs}{Time series of observed values}
+\item{Obs}{Data frame type containing time series of observed values (typically annual streamflow and rainfall).}
 
-\item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains, cores).}
+\item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains, cores).
+
+\code{Sim} requires column names of \code{year} and \code{Q}.
+\code{year} is used to match the simulated an observed values, and
+\code{Q} are the simulated values to test, typically streamflow volume/depth
+#'
+\code{Obs} requires column names of \code{year}, \code{P} and \code{Q}.
+\code{year} is the year of observation, matched to \code{year} in \code{Sim} to calculate errors
+\code{Q} is the observed values to compare to the \code{Q} column from \code{Sim}, using a log ratio
+\code{P} is the independent climate variable, to test if there is a relationship in the errors
+
+An optional \code{ID} column can be included to indicate multiple sites to be used
+as random factors in the test. If an \code{ID} column is used, it is required in both \code{Sim} and \code{Obs}.}
 }
 \value{
 a list with members:
 \describe{
-\item{beta}{samples of slope values from the posterior distribution}
 \item{fit}{rstan model  object for testing of convergence etc}
-\item{lambda}{value of exponent used for BC transformation}
+\item{data}{list of data in stan format used to fit the model, after transformation}
+\item{id_levels}{order of random factors if used}
+\item{beta_draws}{samples of slope values from the posterior distribution}
+\item{statistics}{statistics indicating the probability that the slope is: greater than 0 \code{prob_beta_gt0}, less than 0 \code{prob_beta_lt0}, and non-zero \code{p_nonzero}}
 }
 }
 \description{
-Function to apply the BRRAT. The input \code{Sim} and \code{Obs} time series are first
-transformed to near normal distributions using a boxcox transformation, with
-the lambda exponent fit to the \code{obs} data.
-}
-\details{
-A linear regression is fit between the error between the transformed \code{Sim}
+Function to apply the BRRAT. A linear regression is fit between the error between the transformed \code{Sim}
 and \code{Obs} data and the corresponding \code{Clim} data, to test for a dependent
 relationship between the error and climate, indicating a model that is not
 robust to the input climate data. Stan is used to fit the linear regression,
 and hence a distribution of slope values are returned.
+}
+\details{
+Multiple catchments are supported through random factors in the hierarchical
+linear regression model,indicated by different values in an \code{ID} column.
+
+Multiple replicates of the Simulated time series are supported, matched based
+on the \code{year} column.
 }
 \examples{
 
@@ -47,6 +63,7 @@ Obs <- data.frame(P=Clim,Q=observed,year=1:length(Clim))
 #non-robust model, underestimate the wetter years
 Sim1 <- observed*seq(1,0.7,length.out=length(observed))*rnorm(samples,1,0.05)
 Sim1 <- data.frame(Q=Sim1,year=1:length(Clim))
+
 #robust model, only random error
 Sim2 <- observed*rnorm(samples,1,0.05)
 Sim2 <- data.frame(Q=Sim2,year=1:length(Clim))
