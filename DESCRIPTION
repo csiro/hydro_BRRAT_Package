@@ -4,18 +4,16 @@ Version: 0.0.1
 Authors@R: 
     person("Matt", "Gibbs", email = "matt.gibbs@csiro.au",
     role = c("aut", "cre"))
-URL: https://github.com/matt-s-gibbs/SWTools
-Description: Tests for a linear relationship in the log ratio between an observed and simulated series
-    and an independent variable. Typically this the error in modelled streamflow at an annual time scale, and a rainfall
-    input. The approach allows for multiple sites as random factors and for multiple replicates of the simulated values.
-    The approach is outlined in Gibbs et al. (2026) in review.
+URL: https://github.com/MattGibbsCSIRO/BRRAT
+BugReports: https://github.com/MattGibbsCSIRO/BRRAT/issues
+Description: Tests for a linear relationship in the log ratio between an observed and simulated series and an independent variable. Typically this the error in modelled streamflow at an annual time scale, and a rainfall input. The approach allows for multiple sites as random factors and for multiple replicates of the simulated values. The approach is outlined in Gibbs et al. (2026) in review.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Biarch: true
 Depends: 
-    R (>= 3.4.0)
+    R (>= 4.1.0)
 Imports: 
     methods,
     Rcpp (>= 0.12.0),
@@ -26,8 +24,8 @@ Imports:
     ggplot2,
     dplyr
 Suggests:
-  covr,
-  testthat (>= 3.0.0)
+    covr,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LinkingTo: 
     BH (>= 1.66.0),
