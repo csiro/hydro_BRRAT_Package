@@ -1,5 +1,5 @@
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/MattGibbsCSIRO/BRRAT/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MattGibbsCSIRO/BRRAT/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/csiro-internal/hydro_BRRAT_Package/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/csiro-internal/hydro_BRRAT_Package/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 
@@ -17,7 +17,7 @@ Package will be submitted to CRAN if published. Once on CRAN, install with
 install.packages("BRRAT")
 
 To install from github source, the easiest approach is:
-devtools::install_github("MattGibbsCSIRO/BRRAT")
+devtools::install_github(csiro-internal/hydro_BRRAT_Package")
 
 # Contribute
 Feel free to add pull requests, raise issues here on github or email.
