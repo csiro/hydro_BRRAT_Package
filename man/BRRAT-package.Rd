@@ -20,8 +20,8 @@ Gibbs et al. (2026) in review
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/csiro-internal/hydro_BRRAT_Package}
-  \item Report bugs at \url{https://github.com/csiro-internal/hydro_BRRAT_Package/issues}
+  \item \url{https://github.com/csiro/hydro_BRRAT_Package}
+  \item Report bugs at \url{https://github.com/csiro/hydro_BRRAT_Package/issues}
 }
 
 }

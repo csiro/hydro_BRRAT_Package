@@ -4,8 +4,8 @@ Version: 0.0.1
 Authors@R: 
     person("Matt", "Gibbs", email = "matt.gibbs@csiro.au",
     role = c("aut", "cre"))
-URL: https://github.com/csiro-internal/hydro_BRRAT_Package
-BugReports: https://github.com/csiro-internal/hydro_BRRAT_Package/issues
+URL: https://github.com/csiro/hydro_BRRAT_Package
+BugReports: https://github.com/csiro/hydro_BRRAT_Package/issues
 Description: Tests for a linear relationship in the log ratio between an observed and simulated series and an independent variable. Typically this the error in modelled streamflow at an annual time scale, and a rainfall input. The approach allows for multiple sites as random factors and for multiple replicates of the simulated values. The approach is outlined in Gibbs et al. (2026) in review.
 License: GPL (>= 3)
 Encoding: UTF-8
