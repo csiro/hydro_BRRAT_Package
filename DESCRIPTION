@@ -1,6 +1,6 @@
 Package: BRRAT
 Title: Bayesian Regression Robustness Assessment Test
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person("Matt", "Gibbs", email = "matt.gibbs@csiro.au",
     role = c("aut", "cre"))

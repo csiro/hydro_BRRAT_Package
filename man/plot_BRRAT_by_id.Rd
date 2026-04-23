@@ -37,8 +37,22 @@ during fitting. The function reconstructs equal-tail credible bands by propagati
 posterior draws of \code{intercept_id[j]} and \code{slope_id[j]}.
 }
 \examples{
-\dontrun{
-res <- BRRAT(Sim,Obs)
+\donttest{
+set.seed(1)
+samples <- 30
+make_site <- function(id) {
+  Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+  observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+  list(
+    Obs = data.frame(P = Clim, Q = observed, year = 1:samples, ID = id),
+    Sim = data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples, ID = id)
+  )
+}
+s1 <- make_site("A")
+s2 <- make_site("B")
+Obs <- rbind(s1$Obs, s2$Obs)
+Sim <- rbind(s1$Sim, s2$Sim)
+res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 p_sites <- plot_BRRAT_by_id(res, n_grid = 150, level = 0.80, facet = TRUE)
 print(p_sites)
 }

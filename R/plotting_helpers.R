@@ -21,8 +21,14 @@
 #' \eqn{x_{\mathrm{std}} = (x - x_{\mathrm{center}}) / x_{\mathrm{scale}}}.
 #'
 #' @examples
-#' \dontrun{
-#' res <- BRRAT(Sim,Obs)
+#' \donttest{
+#' set.seed(1)
+#' samples <- 30
+#' Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+#' observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+#' Obs <- data.frame(P = Clim, Q = observed, year = 1:samples)
+#' Sim <- data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples)
+#' res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 #' p_pop <- plot_BRRAT_population(res, n_grid = 200, level = 0.95)
 #' print(p_pop)
 #' }
@@ -51,7 +57,6 @@ plot_BRRAT_population <- function(fit_obj, n_grid = 200, level = 0.95) {
 
   data_sc <- data.frame(x=fit_obj$data$x,y=fit_obj$data$y)
   if (nrow(data_sc) > 20000) {
-    set.seed(1)
     data_sc <- data_sc[sample(seq_len(nrow(data_sc)), 20000), ]
   }
 
@@ -98,8 +103,22 @@ plot_BRRAT_population <- function(fit_obj, n_grid = 200, level = 0.95) {
 #' posterior draws of `intercept_id[j]` and `slope_id[j]`.
 #'
 #' @examples
-#' \dontrun{
-#' res <- BRRAT(Sim,Obs)
+#' \donttest{
+#' set.seed(1)
+#' samples <- 30
+#' make_site <- function(id) {
+#'   Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+#'   observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+#'   list(
+#'     Obs = data.frame(P = Clim, Q = observed, year = 1:samples, ID = id),
+#'     Sim = data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples, ID = id)
+#'   )
+#' }
+#' s1 <- make_site("A")
+#' s2 <- make_site("B")
+#' Obs <- rbind(s1$Obs, s2$Obs)
+#' Sim <- rbind(s1$Sim, s2$Sim)
+#' res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 #' p_sites <- plot_BRRAT_by_id(res, n_grid = 150, level = 0.80, facet = TRUE)
 #' print(p_sites)
 #' }
@@ -139,7 +158,6 @@ plot_BRRAT_by_id <- function(fit_obj, n_grid = 150, level = 0.80, facet = TRUE) 
                         y=fit_obj$data$y,
                         ID = fit_obj$id_levels[fit_obj$data$group])
   if (nrow(data_sc) > 30000) {
-    set.seed(1)
     data_sc <- do.call(rbind, lapply(split(data_sc, data_sc$ID), function(dd) {
       keep <- min(5000, nrow(dd))
       dd[sample(seq_len(nrow(dd)), keep), ]

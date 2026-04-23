@@ -47,8 +47,14 @@ intercept_id[j] = alpha + b0[j]; slope_id[j] = beta + b1[j]}
 }
 
 \examples{
-\dontrun{
-res <- BRRAAT(Sim,Obs)
+\donttest{
+set.seed(1)
+samples <- 30
+Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+Obs <- data.frame(P = Clim, Q = observed, year = 1:samples)
+Sim <- data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples)
+res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 tabs <- summarise_BRRAT(res, level = 0.95)
 tabs$global
 head(tabs$per_id)

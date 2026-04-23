@@ -31,8 +31,14 @@ scale, internally converting to the centered/scaled space via
 \eqn{x_{\mathrm{std}} = (x - x_{\mathrm{center}}) / x_{\mathrm{scale}}}.
 }
 \examples{
-\dontrun{
-res <- BRRAT(Sim,Obs)
+\donttest{
+set.seed(1)
+samples <- 30
+Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+Obs <- data.frame(P = Clim, Q = observed, year = 1:samples)
+Sim <- data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples)
+res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 p_pop <- plot_BRRAT_population(res, n_grid = 200, level = 0.95)
 print(p_pop)
 }

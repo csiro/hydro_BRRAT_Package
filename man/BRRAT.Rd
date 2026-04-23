@@ -51,7 +51,7 @@ on the \code{year} column.
 }
 \examples{
 
-\dontrun{
+\donttest{
 #generate 2 models of annual streamflow
 samples <- 50
 #generate some annual rainfall totals
@@ -73,8 +73,13 @@ fit1 <- BRRAT(Sim1,Obs,chains=1,iter=500)
 fit2 <- BRRAT(Sim2,Obs,chains=1,iter=500)
 
 dat <- data.frame(b = c(fit1$beta_draws,fit2$beta_draws),
-id = c(rep("fit1",length(fit1$beta_draws)),rep("fit2",length(fit2$beta_draws))))
-ggplot(dat)+geom_density(aes(b,fill=id)) #fit2 is centered on 0, fit1 has a negative slope
+id = c(rep("fit1",length(fit1$beta_draws)),
+       rep("fit2",length(fit2$beta_draws))))
+
+#fit2 is centered on 0, fit1 has a negative slope
+ggplot2::ggplot(dat)+
+ ggplot2::geom_density(ggplot2::aes(b,fill=id))
+
 #can also be viewed using the plotting function
 plot_BRRAT_population(fit1)
 plot_BRRAT_population(fit2)

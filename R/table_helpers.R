@@ -36,8 +36,14 @@
 #' intercept_id[j] = alpha + b0[j]; slope_id[j] = beta + b1[j]}
 #'
 #' @examples
-#' \dontrun{
-#' res <- BRRAAT(Sim,Obs)
+#' \donttest{
+#' set.seed(1)
+#' samples <- 30
+#' Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+#' observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+#' Obs <- data.frame(P = Clim, Q = observed, year = 1:samples)
+#' Sim <- data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples)
+#' res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 #' tabs <- summarise_BRRAT(res, level = 0.95)
 #' tabs$global
 #' head(tabs$per_id)
@@ -95,28 +101,37 @@ summarise_BRRAT <- function(fit_obj, level = 0.95) {
 #' population slope (`file_global`) and one for per-site coefficients (`file_per_id`).
 #'
 #' @param fit_obj A fitted object returned by [BRRAT()], of class `BRRAT`.
-#' @param file_global Path/filename for the global table CSV (default `'global.csv'`).
-#' @param file_per_id If applicable to the model, Path/filename
-#' for the per-site table CSV (default `'per_id.csv'`).
+#' @param file_global Path/filename for the global table CSV. No default is
+#'   provided; the user must supply an explicit path (e.g. via [tempfile()] or
+#'   a user-chosen location).
+#' @param file_per_id If applicable to the model, path/filename for the
+#'   per-site table CSV. No default is provided; the user must supply an
+#'   explicit path.
 #' @param level Credible interval level passed to [summarise_BRRAT()] (default `0.95`).
 #'
 #' @return (Invisibly) a list with the two data frames written:
 #' `list(global = <data.frame>, per_id = <data.frame>)`.
 #'
 #' @examples
-#' \dontrun{
-#' res <- BRRAT(Sim,Obs)
+#' \donttest{
+#' set.seed(1)
+#' samples <- 30
+#' Clim <- sort(pmax(0, rnorm(samples, 600, 100)))
+#' observed <- pmax(0, (Clim - 150) - 450 * tanh((Clim - 150) / 450))
+#' Obs <- data.frame(P = Clim, Q = observed, year = 1:samples)
+#' Sim <- data.frame(Q = observed * rnorm(samples, 1, 0.05), year = 1:samples)
+#' res <- BRRAT(Sim, Obs, chains = 1, iter = 500)
 #' export_BRRAT_csv(res,
-#'   file_global = "qerr_global.csv",
-#'   file_per_id = "qerr_per_id.csv",
+#'   file_global = tempfile(fileext = ".csv"),
+#'   file_per_id = tempfile(fileext = ".csv"),
 #'   level = 0.95
 #' )
 #' }
 #'
 #' @export
 export_BRRAT_csv <- function(fit_obj,
-                                file_global = 'lobal.csv',
-                                file_per_id = 'per_id.csv',
+                                file_global,
+                                file_per_id,
                                 level = 0.95) {
   tabs <- summarise_BRRAT(fit_obj, level = level)
   utils::write.csv(tabs$global,  file_global,  row.names = FALSE)
