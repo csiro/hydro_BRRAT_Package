@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/csiro/hydro_BRRAT_Package/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/csiro/hydro_BRRAT_Package/actions/workflows/R-CMD-check.yaml)[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.17957953-blue)](https://doi.org/10.5281/zenodo.17957953)
+[![R-CMD-check](https://github.com/csiro/hydro_BRRAT_Package/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/csiro/hydro_BRRAT_Package/actions/workflows/R-CMD-check.yaml)[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.17957953-blue)](https://doi.org/10.5281/zenodo.17957953)![CRAN](https://img.shields.io/cran/v/BRRAT)
 
 <!-- badges: end -->
 
@@ -19,7 +19,10 @@ A hierarchical linear regression approach is used if multiple catchments are con
 
 ## Getting Started
 
-Package has been submitted to CRAN. Once on CRAN, install with install.packages("BRRAT")
+Install with 
+```r
+install.packages("BRRAT")
+```
 
 To install from github source, the easiest approach is: devtools::install_github("csiro/hydro_BRRAT_Package")
 
@@ -66,7 +69,7 @@ summarise_BRRAT(fit2)
 
 ## Citation
 
-Gibbs MS, Wang B, Crosbie R, Montazeri M, Vaze J and Yang A (2026) Improving distributed hydrological model robustness through multi-variable calibration. Hydrological Processes, In Press.
+Gibbs, M., B.Wang, R.Crosbie, M.Montazeri, J.Vaze, and A.Yang. 2026. “Improving Distributed Hydrological Model Robustness Through Multi-Variable Calibration.” Hydrological Processes, 40(4) e70525. [https://doi.org/10.1002/hyp.70525](https://doi.org/10.1002/hyp.70525)
 
 ## Contribute
 
